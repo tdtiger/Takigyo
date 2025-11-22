@@ -11,7 +11,7 @@
 ## プレイ用リンク
 まだ実装できていない機能もいくつかありますが。
 
-https://tdtiger.github.io/Takigyo/takigyo.html
+https://tdtiger.github.io/Takigyo/app/takigyo.html
 
 ## 操作方法
 
