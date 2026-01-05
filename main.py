@@ -49,7 +49,12 @@ class App:
         基本的にはシーン遷移ごとに呼び出す。
         """
         self.score = 0
+        self.bonno_count = 330
         self.is_gameover = False
+        self.is_satori = False
+
+        self.start_frame = pyxel.frame_count
+        self.clear_time = 0
 
         self.player_x = SCREEN_WIDTH // 2 - PLAYER_W // 2
         self.player_y = SCREEN_HEIGHT - PLAYER_H - 5
@@ -90,7 +95,7 @@ class App:
             dict: オブジェクトの座標、落下速度、有効かどうかをひとまとめにして返す
 
         Note:
-            完全ランダム生成のため、丸太とオブジェクトが重なって生成される場合がある
+            完全ランダム生成のため、丸太と他のオブジェクトが重なって生成される場合がある
         """
         return{
             "x": random.randint(0, SCREEN_WIDTH - width),
@@ -147,7 +152,25 @@ class App:
         - 煩悩のタップ判定
         - 各オブジェクトの移動
         - 衝突判定
+
+        悟りモードなら、タイムとシェアボタンの表示も行う
         """
+
+        if self.is_satori and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
+            mx = pyxel.mouse_x
+            my = pyxel.mouse_y
+            
+            if 40 <= mx <= 88 and 10 <= my <= 116:
+                minutes = int(self.clear_time // 60)
+                seconds = int(self.clear_time % 60)
+                time_str = f"{minutes:02}:{seconds:05.2f}"
+                text = f"【解脱】{time_str}で悟りを開きました。\n"
+
+                encoded_text = urllib.parse.quote(text)
+                url = "https://tdtiger.github.io/Takigyo/app/takigyo.html"
+                share_url = f"https://twitter.com/intent/tweet?text={encoded_text}&url={url}"
+                webbrowser.open(share_url)
+
         if self.vanish_timer > 0:
             self.vanish_timer -= 1
         else:
@@ -170,6 +193,7 @@ class App:
                     self.score += 100
                     self.spawn_effect(love["x"], love["y"], 8)
                     pyxel.play(1, 2)
+                    self.check_satori()
 
             for money in self.moneys:
                 if(money["x"] - 4 <= mx <= money["x"] + MONEY_W + 4) and (money["y"] - 4 <= my <= money["y"] + MONEY_H + 4):
@@ -178,6 +202,7 @@ class App:
                     self.score += 100
                     self.spawn_effect(money["x"], money["y"], 10)
                     pyxel.play(1, 1)
+                    self.check_satori()
         
         elif pyxel.btn(pyxel.MOUSE_BUTTON_LEFT):
             delta_x = pyxel.mouse_x - self.last_mouse_x
@@ -198,11 +223,18 @@ class App:
                 log["x"] = random.randint(0, SCREEN_WIDTH - LOG_W)
                 log["y"] = random.randint(-100, -10)
             
-            if (self.vanish_timer == 0 and 
-            self.player_x < log["x"] + LOG_W and self.player_x + PLAYER_W > log["x"] and
-            self.player_y < log["y"] + LOG_H and self.player_y + PLAYER_H > log["y"]):
-                self.scene = SCENE_GAMEOVER
-                pyxel.play(1, 3)
+            if (self.player_x < log["x"] + LOG_W and self.player_x + PLAYER_W > log["x"] and
+                self.player_y < log["y"] + LOG_H and self.player_y + PLAYER_H > log["y"]):
+                if self.is_satori:
+                    log["y"] = -10
+                    log["x"] = random.randint(0, SCREEN_WIDTH - LOG_W)
+                
+                elif self.vanish_timer > 0:
+                    pass
+                
+                else:
+                    self.scene = SCENE_GAMEOVER
+                    pyxel.play(1, 3)
 
         for love in self.loves:
             love["y"] += love["speed"]
@@ -210,7 +242,7 @@ class App:
                 love["y"] = random.randint(-100, -10)
                 love["x"] = random.randint(0, SCREEN_WIDTH - LOVE_W)
                 # self.score = max(0, self.score - 50)
-                self.spirit = max(0, self.spirit - 10)
+                self.spirit = max(0, self.spirit - 5)
 
         for money in self.moneys:
             money["y"] += money["speed"]
@@ -218,7 +250,7 @@ class App:
                 money["y"] = random.randint(-100, -10)
                 money["x"] = random.randint(0, SCREEN_WIDTH - MONEY_W) 
                 # self.score = max(0, self.score - 50)
-                self.spirit = max(0, self.spirit - 10)
+                self.spirit = max(0, self.spirit - 5)
 
         for eff in self.effects:
             eff["x"] += eff["vx"]
@@ -253,7 +285,7 @@ class App:
                 self.scene = SCENE_TITLE
 
     def draw(self):
-        pyxel.cls(1)
+        pyxel.cls(1 if not self.is_satori else 10)
         self.draw_background()
 
         if self.scene == SCENE_TITLE:
@@ -270,6 +302,8 @@ class App:
         """
         for p in self.particles:
             color = 6 if p[2] < 4 else 7
+            if self.is_satori:
+                color = 7
             pyxel.line(p[0], p[1], p[0], p[1] + 2, color)
     
     def draw_title(self):
@@ -315,6 +349,20 @@ class App:
         for eff in self.effects:
             c = eff["color"] if eff["life"] > 5 else 7
             pyxel.rect(eff["x"], eff["y"], 2, 2, c)
+
+        if self.is_satori:
+            pyxel.text(40, 80, "SATORI OPENED!", 8)
+            pyxel.text(39, 80, "SATORI OPENED!", 7)
+
+            minutes = int(self.clear_time // 60)
+            seconds = int(self.clear_time % 60)
+            time_str = f"{minutes:02}:{seconds:05.2f}"
+
+            btn_x = 40
+            btn_y = 100
+            pyxel.rect(btn_x, btn_y, 48, 16, 0)
+            pyxel.rectb(btn_x, btn_y, 48, 16, 7)
+            pyxel.text(btn_x + 15, btn_y + 6, "SHARE", 7)
         
         pyxel.text(5, 5, f"SCORE: {self.score}", 7)
         pyxel.text(5, 15, f"LV: {self.level + 1}", 6)
@@ -339,5 +387,21 @@ class App:
         """
         for _ in range(8):
             self.effects.append({"x": x + 4, "y": y + 4, "vx": random.uniform(-2, 2), "vy": random.uniform(-2, 2), "life": 20, "color": color})
+    
+    def check_satori(self):
+        """悟りを開いたかどうかのチェックを行う関数
+        煩悩のタップ数が108個に達した場合、スコアが超加算され、無敵になる(実質ゲームクリア)
+        """
+        if not self.is_satori:
+            self.bonno_count += 1
         
+            if self.bonno_count >= 108:
+                self.is_satori = True
+                self.clear_time = (pyxel.frame_count - self.start_frame) / 60
+                self.score = 1080000
+                self.spirit = self.max_spirit
+                self.vanish_timer = 1080000
+                pyxel.play(3, 3, loop = True)
+                pyxel.play(2, 5)
+
 App()
