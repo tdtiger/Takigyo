@@ -49,7 +49,7 @@ class App:
         基本的にはシーン遷移ごとに呼び出す。
         """
         self.score = 0
-        self.bonno_count = 330
+        self.bonno_count = 0
         self.is_gameover = False
         self.is_satori = False
 
@@ -159,8 +159,16 @@ class App:
         if self.is_satori and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             mx = pyxel.mouse_x
             my = pyxel.mouse_y
+
+            bnt_y = 100
+            btn_h = 16
             
-            if 40 <= mx <= 88 and 10 <= my <= 116:
+            if 25 <= mx <= 65 and bnt_y <= my <= bnt_y + btn_h:
+                pyxel.stop()
+                self.scene = SCENE_TITLE
+                pyxel.cls(1)
+                return
+            elif 75 <= mx <= 115 and bnt_y <= my <= bnt_y + btn_h:
                 minutes = int(self.clear_time // 60)
                 seconds = int(self.clear_time % 60)
                 time_str = f"{minutes:02}:{seconds:05.2f}"
@@ -351,18 +359,21 @@ class App:
             pyxel.rect(eff["x"], eff["y"], 2, 2, c)
 
         if self.is_satori:
-            pyxel.text(40, 80, "SATORI OPENED!", 8)
-            pyxel.text(39, 80, "SATORI OPENED!", 7)
-
             minutes = int(self.clear_time // 60)
             seconds = int(self.clear_time % 60)
             time_str = f"{minutes:02}:{seconds:05.2f}"
 
-            btn_x = 40
+            pyxel.text(40, 80, "SATORI OPENED!", 8)
+            pyxel.text(39, 80, "SATORI OPENED!", 7)
+            pyxel.text(50, 90, time_str, 7)
+
             btn_y = 100
-            pyxel.rect(btn_x, btn_y, 48, 16, 0)
-            pyxel.rectb(btn_x, btn_y, 48, 16, 7)
-            pyxel.text(btn_x + 15, btn_y + 6, "SHARE", 7)
+            pyxel.rect(20, btn_y, 40, 16, 0)
+            pyxel.rectb(20, btn_y, 40, 16, 7)
+            pyxel.text(29, btn_y + 6, "TITLE", 7)
+            pyxel.rect(70, btn_y, 40, 16, 0)
+            pyxel.rectb(70, btn_y, 40, 16, 7)
+            pyxel.text(79, btn_y + 6, "SHARE", 7)
         
         pyxel.text(5, 5, f"SCORE: {self.score}", 7)
         pyxel.text(5, 15, f"LV: {self.level + 1}", 6)
@@ -378,9 +389,9 @@ class App:
 
         y = 115
         pyxel.rectb(20, y, 40, 15, 6)
-        pyxel.text(25, y + 5, "TITLE", 6)
+        pyxel.text(29, y + 5, "TITLE", 6)
         pyxel.rectb(69, y, 40, 15, 10)
-        pyxel.text(74, y + 5, "SHARE", 10)
+        pyxel.text(78, y + 5, "SHARE", 10)
 
     def spawn_effect(self, x, y, color):
         """煩悩タップ時のエフェクトを生成する関数
@@ -401,7 +412,7 @@ class App:
                 self.score = 1080000
                 self.spirit = self.max_spirit
                 self.vanish_timer = 1080000
-                pyxel.play(3, 3, loop = True)
-                pyxel.play(2, 5)
+                pyxel.stop()
+                pyxel.playm(1, loop = True)
 
 App()
