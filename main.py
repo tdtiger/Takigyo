@@ -5,29 +5,35 @@ import random
 import webbrowser
 import urllib.parse
 
+# 画面サイズ
 SCREEN_WIDTH = 128
 SCREEN_HEIGHT = 192
 
+# プレイヤーの位置とサイズ
 PLAYER_U = 0
 PLAYER_V = 0
 PLAYER_W = 8
 PLAYER_H = 16
 
+# 丸太の位置とサイズ
 LOG_U = 16
 LOG_V = 0
 LOG_W = 8
 LOG_H = 8
 
+# 愛の位置とサイズ
 LOVE_U = 24
 LOVE_V = 0
 LOVE_W = 8
 LOVE_H = 8
 
+# 金の位置とサイズ
 MONEY_U = 32
 MONEY_V = 0
 MONEY_W = 8
 MONEY_H = 8
 
+# シーンの定義
 SCENE_TITLE = "title"
 SCENE_PLAY = "play"
 SCENE_GAMEOVER = "gameover"
@@ -56,6 +62,7 @@ class App:
         self.start_frame = pyxel.frame_count
         self.clear_time = 0
 
+        # プレイヤー、マウスの位置を真ん中に設定
         self.player_x = SCREEN_WIDTH // 2 - PLAYER_W // 2
         self.player_y = SCREEN_HEIGHT - PLAYER_H - 5
         self.last_mouse_x = SCREEN_WIDTH // 2 - PLAYER_W // 2
@@ -160,15 +167,15 @@ class App:
             mx = pyxel.mouse_x
             my = pyxel.mouse_y
 
-            bnt_y = 100
+            btn_y = 100
             btn_h = 16
             
-            if 25 <= mx <= 65 and bnt_y <= my <= bnt_y + btn_h:
+            if 25 <= mx <= 65 and btn_y <= my <= btn_y + btn_h:
                 pyxel.stop()
                 self.scene = SCENE_TITLE
                 pyxel.cls(1)
                 return
-            elif 75 <= mx <= 115 and bnt_y <= my <= bnt_y + btn_h:
+            elif 75 <= mx <= 115 and btn_y <= my <= btn_y + btn_h:
                 minutes = int(self.clear_time // 60)
                 seconds = int(self.clear_time % 60)
                 time_str = f"{minutes:02}:{seconds:05.2f}"
@@ -188,6 +195,7 @@ class App:
         self.level = self.score // 500
         speed_bonus = min(self.level * 0.5, 5)
 
+        # 煩悩タップ時の処理
         if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             self.last_mouse_x = pyxel.mouse_x
             self.last_mouse_y = pyxel.mouse_y
