@@ -107,7 +107,7 @@ class App:
         return{
             "x": random.randint(0, SCREEN_WIDTH - width),
             "y": random.randint(-200, -20),
-            "speed": random.randint(1, 3),
+            "speed": random.randint(1, 3) * 0.8,
             "active": True
         }
 
@@ -204,19 +204,27 @@ class App:
 
             for love in self.loves:
                 if(love["x"] - 4 <= mx <= love["x"] + LOVE_W + 4) and (love["y"] - 4 <= my <= love["y"] + LOVE_H + 4):
+                    # タップ時の座標を記録
+                    hit_x = love["x"]
+                    hit_y = love["y"]
+
                     love["y"] = -100
                     love["x"] = random.randint(0, SCREEN_WIDTH - LOVE_W)
                     self.score += 100
-                    self.spawn_effect(love["x"], love["y"], 8)
+                    self.spawn_effect(hit_x, hit_y, 8)
                     pyxel.play(1, 2)
                     self.check_satori()
 
             for money in self.moneys:
                 if(money["x"] - 4 <= mx <= money["x"] + MONEY_W + 4) and (money["y"] - 4 <= my <= money["y"] + MONEY_H + 4):
+                    # タップ時の座標を記録
+                    hit_x = money["x"]
+                    hit_y = money["y"]
+
                     money["y"] = -100
                     money["x"] = random.randint(0, SCREEN_WIDTH - MONEY_W)
                     self.score += 100
-                    self.spawn_effect(money["x"], money["y"], 10)
+                    self.spawn_effect(hit_x, hit_y, 10)
                     pyxel.play(1, 1)
                     self.check_satori()
         
