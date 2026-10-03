@@ -193,7 +193,7 @@ class App:
                 self.spirit += 0.5
 
         self.level = self.score // 500
-        speed_bonus = min(self.level * 0.5, 5)
+        speed_bonus = min(self.level * 0.1, 1.5)
 
         # 煩悩タップ時の処理
         if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
@@ -208,11 +208,15 @@ class App:
                     hit_x = love["x"]
                     hit_y = love["y"]
 
+                    # 画面外に再配置
                     love["y"] = -100
                     love["x"] = random.randint(0, SCREEN_WIDTH - LOVE_W)
+
+                    # 得点の加算とエフェクト生成
                     self.score += 100
                     self.spawn_effect(hit_x, hit_y, 8)
                     pyxel.play(1, 2)
+
                     self.check_satori()
 
             for money in self.moneys:
@@ -221,11 +225,15 @@ class App:
                     hit_x = money["x"]
                     hit_y = money["y"]
 
+                    # 画面外に再配置
                     money["y"] = -100
                     money["x"] = random.randint(0, SCREEN_WIDTH - MONEY_W)
+
+                    # 得点の加算とエフェクト生成
                     self.score += 100
                     self.spawn_effect(hit_x, hit_y, 10)
                     pyxel.play(1, 1)
+
                     self.check_satori()
         
         elif pyxel.btn(pyxel.MOUSE_BUTTON_LEFT):
@@ -242,20 +250,25 @@ class App:
             self.last_mouse_y = pyxel.mouse_y
 
         for log in self.logs:
-            log["y"] += log["speed"]
+            # 位置更新
+            log["y"] += log["speed"] + speed_bonus
+
+            # 画面外に到達したら再配置
             if log["y"] > SCREEN_HEIGHT:
                 log["x"] = random.randint(0, SCREEN_WIDTH - LOG_W)
                 log["y"] = random.randint(-100, -10)
-            
+
+            # プレイヤーに衝突時の処理
             if (self.player_x < log["x"] + LOG_W and self.player_x + PLAYER_W > log["x"] and
                 self.player_y < log["y"] + LOG_H and self.player_y + PLAYER_H > log["y"]):
+                # 悟り状態なら画面外に再配置
                 if self.is_satori:
                     log["y"] = -10
                     log["x"] = random.randint(0, SCREEN_WIDTH - LOG_W)
-                
+                # 無敵中なら素通り
                 elif self.vanish_timer > 0:
                     pass
-                
+                # どちらでもないならゲームオーバー
                 else:
                     self.scene = SCENE_GAMEOVER
                     pyxel.play(1, 3)
