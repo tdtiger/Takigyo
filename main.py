@@ -407,6 +407,11 @@ class App:
         pyxel.text(5, 5, f"SCORE: {self.score}", 7)
         pyxel.text(5, 15, f"LV: {self.level + 1}", 6)
 
+        # 108個までの進捗バー
+        pyxel.text(70, 5, f"BONNO: {self.bonno_count}/108", 7)
+        pyxel.rectb(70, 15, 52, 5, 7)
+        pyxel.rect(71, 16, int(50 * self.bonno_count / 108), 3, 10)
+
     def draw_gameover(self):
         """ゲームオーバー画面の描画を行う関数
         """

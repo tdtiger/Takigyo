@@ -39,8 +39,7 @@ SOFTWARE.
 ![プレイ画面](img/preview.png)
 
 ## プレイ用リンク
-まだ実装できていない機能もいくつかありますが。
-スコアをXにシェアできるようになりました。
+GitHub Pagesでデプロイしています。
 
 https://tdtiger.github.io/Takigyo/app/takigyo.html
 
